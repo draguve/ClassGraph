@@ -57,6 +57,11 @@
 <script src="../plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curvedArrow.js"></script>
 <!-- JSON IMPORT -->
 <script src="../plugins/sigma.parsers.json/sigma.parsers.json.js"></script>
+<!-- FORCE STUFF -->
+<script src="../plugins/sigma.layout.forceAtlas2/worker.js"></script>
+<script src="../plugins/sigma.layout.forceAtlas2/supervisor.js"></script>
+<!-- DRAG STUFF -->
+<script src="../plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
 <div id="container">
   <style>
     #graph-container {
@@ -83,6 +88,8 @@ sigma.parsers.json('data.json', {
     minArrowSize: 7
  
   }
-  
+}, function(s) {
+    s.startForceAtlas2({worker: false, barnesHutOptimize: true});
+    var dragListener = sigma.plugins.dragNodes(s, s.renderers[0]);
 });
 </script>
