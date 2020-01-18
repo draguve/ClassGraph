@@ -27,6 +27,11 @@
       "target": 2,
       "type": "KNOWS",
       "since": 2010
+    },{
+      "source": 1,
+      "target": 2,
+      "type": "LIKES",
+      "since": 2010
     },
     {
       "source": 1,
