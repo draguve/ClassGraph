@@ -164,7 +164,6 @@
             largeArc = 0;
 
             if (siblingCount > 1) {
-                //var arcScale = d3.scaleBand().domain(siblings).rangePoints([1, siblingCount]);
                 var sibTexts = getSiblingTexts(siblings);
                 var arcScale = d3.scaleBand().domain(sibTexts).range([0, siblingCount]);
                 drx = drx/(1.5 + (1/siblingCount) * (arcScale(d.type) - 1));
@@ -175,13 +174,6 @@
     }
 
     function ticked() {
-        /*
-        link
-            .attr("x1", function (d) {return d.source.x;})
-            .attr("y1", function (d) {return d.source.y;})
-            .attr("x2", function (d) {return d.target.x;})
-            .attr("y2", function (d) {return d.target.y;});
-        */
         link
             .attr("d",function(d){
                 return arcPath(true,d);
@@ -191,21 +183,22 @@
             .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
 
         edgepaths.attr('d', function (d) {
-            return arcPath(true,d)
-            //return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+            return arcPath(d.source.x < d.target.x,d)
         });
 
         edgelabels.attr('transform', function (d) {
-            if (d.target.x < d.source.x) {
-                var bbox = this.getBBox();
+            if(getSiblingLinks(d.source,d.target).length==1){
+                if (d.target.x < d.source.x) {
+                    var bbox = this.getBBox();
 
-                rx = bbox.x + bbox.width / 2;
-                ry = bbox.y + bbox.height / 2;
-                return 'rotate(180 ' + rx + ' ' + ry + ')';
+                    rx = bbox.x + bbox.width / 2;
+                    ry = bbox.y + bbox.height / 2;
+                    return 'rotate(180 ' + rx + ' ' + ry + ')';
+                } else {
+                    return 'rotate(0)';
+                }
             }
-            else {
-                return 'rotate(0)';
-            }
+            
         });
     }
 
