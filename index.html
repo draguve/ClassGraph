@@ -209,7 +209,7 @@ path.invis {
                         xRotation = 0,
                         largeArc = 0;
 
-                        if (siblingCount > 1) {
+                        if (siblingCount-2 > 1) {
                             var siblings = getSiblingLinks(d.source, d.target);
                             //console.log(siblings);
                             var arcScale = d3.scale.ordinal()
