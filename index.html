@@ -33,57 +33,6 @@ path.invis {
 <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script type="text/javascript">
-
-    var data = {
-          edges: [
-              {
-                source: {id: 0, label: "Naughty"},
-                target: {id: 1, label: "By"},
-                value: "You 'bout to feel"
-              },
-              {
-                source: {id: 0, label: "Naughty"},
-                target: {id: 1, label: "By"},
-                value: "the chronicles of a bionical lyric"
-              },
-              {
-                source: {id: 0, label: "Naughty"},
-                target: {id: 1, label: "By"},
-                value: "Lyrically splitting dismissing"
-              },
-              {
-                source: {id: 1, label: "By"},
-                target: {id: 2, label: "Nature"},
-                value: "I'm on a mission of just hitting"
-              },
-              {
-                source: {id: 1, label: "By"},
-                target: {id: 2, label: "Nature"},
-                value: "Now it's written and"
-              },
-              {
-                source: {id: 1, label: "By"},
-                target: {id: 2, label: "Nature"},
-                value: "kitten hitting wit mittens"
-              },
-              {
-                source: {id: 2, label: "Nature"},
-                target: {id: 0, label: "Naughty"},
-                value: "I'm missing, wishing, man, listen"
-              },
-              {
-                source: {id: 2, label: "Nature"},
-                target: {id: 0, label: "Naughty"},
-                value: "I glisten like"
-              },
-              {
-                source: {id: 2, label: "Nature"},
-                target: {id: 0, label: "Naughty"},
-                value: "sun and water while fishing"
-              },
-          ]
-    };
-
     function myGraph() {
       this.addNode = function (n) {
           if (!findNode(n.id)) {
@@ -93,15 +42,19 @@ path.invis {
       };
 
       this.addLink = function (source, target, value) {
-          links.push({"source": findNode(source.id), "target": findNode(target.id), "value": value});
+          links.push({"source": findNode(source), "target": findNode(target), "value": value});
           update();
       };
 
       this.initialize = function() {
-        data.edges.forEach(function(d) {
-            graph.addNode(d.source);
-            graph.addNode(d.target);
-            graph.addLink(d.source, d.target, d.value);
+        d3.json("data.json", function (error, root) {
+            if (error) throw error;
+            root.nodes.forEach(function(node) {
+                graph.addNode(node);
+            });
+            root.links.forEach(function(link) {
+                graph.addLink(link.source,link.target,link.value);
+            });
         });
       };
 
@@ -112,6 +65,8 @@ path.invis {
               }
           };
       };
+
+     this.find = findNode;
 
       var countSiblingLinks = function(source, target) {
           var count = 0;
@@ -166,6 +121,12 @@ path.invis {
 
         var nodes = force.nodes(),
             links = force.links();
+        this.nodes = nodes;
+        this.links = links;
+
+        this.get_json = function(){
+
+        }
 
         var update = function () {
 
@@ -247,7 +208,7 @@ path.invis {
 
                         if (siblingCount > 1) {
                             var siblings = getSiblingLinks(d.source, d.target);
-                            console.log(siblings);
+                            //console.log(siblings);
                             var arcScale = d3.scale.ordinal()
                                                     .domain(siblings)
                                                     .rangePoints([1, siblingCount]);
