@@ -19,7 +19,10 @@
 <script type="text/javascript">
     var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var svg = d3.select("svg"),
+    var svg = d3.select("svg").call(d3.zoom().on("zoom", function () {
+            svg.attr("transform", d3.event.transform)
+            }))
+        .append("g"),
         width = +svg.attr("width"),
         height = +svg.attr("height"),
         node,
@@ -194,7 +197,7 @@
                     rx = bbox.x + bbox.width / 2;
                     ry = bbox.y + bbox.height / 2;
                     return 'rotate(180 ' + rx + ' ' + ry + ')';
-                } else {
+                }else {
                     return 'rotate(0)';
                 }
             }
