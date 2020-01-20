@@ -11,7 +11,7 @@
     </style>
 </head>
 <body>
-<svg width="960" height="600"></svg>
+<svg id="draw" width="960" height="600"></svg>
 
 <script src="https://d3js.org/d3.v4.min.js" type="text/javascript"></script>
 <script src="https://d3js.org/d3-selection-multi.v1.js"></script>
@@ -22,15 +22,19 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
 var nodes=[];
 var links=[];
 
-var svg = d3.select("svg").call(d3.zoom().on("zoom", function() {
+var draw   = document.getElementById("draw")
+var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
+
+var zoom = d3.zoom().on("zoom", function() {
         svg.attr("transform", d3.event.transform)
-    }))
-    .append("g"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height"),
+        //http://bl.ocks.org/eyaler/10586116 //copy
+    }),
+    svg = d3.select("svg").call(zoom).append("g"),
+    width = drawRect.width,
+    height = drawRect.height,
     node,
     link;
-
+    
 svg.append('defs').append('marker')
     .attrs({
         'id': 'arrowhead',
@@ -276,7 +280,7 @@ function update() {
 
     node.exit().remove();
 
-    simulation.nodes(nodes).on("tick", ticked);;
+    simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     simulation.alpha(1).restart();
 }
