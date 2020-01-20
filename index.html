@@ -19,6 +19,9 @@
 <script type="text/javascript">
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
+var nodes=[];
+var links=[];
+
 var svg = d3.select("svg").call(d3.zoom().on("zoom", function() {
         svg.attr("transform", d3.event.transform)
     }))
@@ -55,7 +58,9 @@ var linkedByIndex = {};
 
 d3.json("graph.json", function(error, graph) {
     if (error) throw error;
-    update(graph.links, graph.nodes);
+    links = graph.links;
+    nodes = graph.nodes;
+    update();
     graph.links.forEach(function(d) {
         linkedByIndex[d.source.index + "," + d.target.index] = true;
     });
@@ -177,7 +182,8 @@ function isConnectedAsTarget(a, b) {
     return linkedByIndex[b.index + "," + a.index];
 }
 
-function update(links, nodes) {
+function update() {
+    d3.selectAll("g > *").remove()
     link = svg.selectAll(".link")
         .data(links)
         .enter()
@@ -193,6 +199,8 @@ function update(links, nodes) {
             return d.type;
         });
 
+    link.exit().remove();
+
     edgepaths = svg.selectAll(".edgepath")
         .data(links)
         .enter()
@@ -206,6 +214,8 @@ function update(links, nodes) {
             }
         })
         .style("pointer-events", "none");
+
+    edgepaths.exit().remove();
 
     edgelabels = svg.selectAll(".edgelabel")
         .data(links)
@@ -231,6 +241,8 @@ function update(links, nodes) {
         .text(function(d) {
             return d.type
         });
+
+    edgelabels.exit().remove();
 
     node = svg.selectAll(".node")
         .data(nodes)
@@ -262,12 +274,19 @@ function update(links, nodes) {
             return d.name + ":" + d.label;
         });
 
-    simulation
-        .nodes(nodes)
-        .on("tick", ticked);
+    node.exit().remove();
 
-    simulation.force("link")
-        .links(links);
+    simulation.nodes(nodes).on("tick", ticked);;
+    simulation.force("link").links(links);
+    simulation.alpha(1).restart();
+}
+
+function getNode(id){
+    for (i = 0; i < nodes.length; i++) { 
+        if(nodes[i].id == id){
+            return nodes[i];
+        }
+    } 
 }
 
 function arcPath(leftHand, d) {
