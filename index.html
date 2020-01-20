@@ -51,9 +51,14 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
+var linkedByIndex = {};
+
 d3.json("graph.json", function(error, graph) {
     if (error) throw error;
     update(graph.links, graph.nodes);
+    graph.links.forEach(function(d) {
+        linkedByIndex[d.source.index + "," + d.target.index] = true;
+    });
 })
 
 var links = simulation.force("link").links();
@@ -127,7 +132,15 @@ var mouseOutFunction = function() {
 }
 
 function isConnected(a, b) {
-    return a.id == b.id;
+    return isConnectedAsTarget(a, b) || isConnectedAsSource(a, b) || a.index == b.index;
+}
+
+function isConnectedAsSource(a, b) {
+    return linkedByIndex[a.index + "," + b.index];
+}
+
+function isConnectedAsTarget(a, b) {
+    return linkedByIndex[b.index + "," + a.index];
 }
 
 function update(links, nodes) {
