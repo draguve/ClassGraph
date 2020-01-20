@@ -82,6 +82,40 @@ var getSiblingTexts = function(sib) {
     return texts;
 }
 
+var mouseOverLink = function(d){
+    node
+        .transition(500)
+        .style("opacity", function(o) {
+            return d.source.id == o.id || d.target.id == o.id ? 1.0 : 0.2;
+        });
+    
+    edgelabels
+        .transition(500)
+        .style("opacity", function(o) {
+            return o.index == d.index ? 1 : 0.2;
+        });
+
+    link
+        .transition(500)
+        .style("stroke-opacity", function(o) {
+            return o.index == d.index ? 1 : 0.2;
+        });
+}
+
+var mouseOutLink = function(d){
+    node
+        .transition(500)
+        .style("opacity", 1);
+    
+    edgelabels
+        .transition(500)
+        .style("opacity",1);
+
+    link
+        .transition(500)
+        .style("stroke-opacity", 1);
+}
+
 var mouseOverFunction = function(d) {
     var circle = d3.select(this);
 
@@ -151,6 +185,8 @@ function update(links, nodes) {
         .attr("class", "link")
         .attr('marker-end', 'url(#arrowhead)')
         .attr("fill", "none")
+        .on("mouseover", mouseOverLink)
+        .on("mouseout", mouseOutLink);
 
     link.append("title")
         .text(function(d) {
