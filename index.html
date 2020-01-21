@@ -87,9 +87,6 @@ d3.json("graph.json", function(error, graph) {
     links = graph.links;
     nodes = graph.nodes;
     update();
-    graph.links.forEach(function(d) {
-        linkedByIndex[d.source.index + "," + d.target.index] = true;
-    });
 })
 
 var links = simulation.force("link").links();
@@ -267,7 +264,10 @@ function isConnectedAsTarget(a, b) {
 }
 
 function update() {
+    //clear all objects
     d3.selectAll("g > *").remove()
+    //update the links dict
+
     link = svg.selectAll(".link")
         .data(links)
         .enter()
@@ -364,6 +364,12 @@ function update() {
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     simulation.alpha(1).restart();
+
+    linkedByIndex = {};
+    links.forEach(function(d) {
+        linkedByIndex[d.source.index + "," + d.target.index] = true;
+    });
+    console.log(linkedByIndex);
 }
 
 function getNode(id){
