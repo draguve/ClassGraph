@@ -55,6 +55,8 @@ var zoom = d3.zoom()
     node,
     link;
 
+root.on("mousedown",mouseDownGraph);
+
 root.append('defs').append('marker')
     .attrs({
         'id': 'arrowhead',
@@ -221,7 +223,6 @@ var mouseOverFunction = function(d,check = true) {
 }
 
 var mouseOutFunction = function(d,check = true) {
-    console.log(check);
     if(check){
         if(state.selectedLink!=null){
             return;
@@ -247,6 +248,10 @@ var mouseOutFunction = function(d,check = true) {
         .transition(500)
         .style("opacity", 1.0);
 
+}
+
+function mouseDownGraph(d){
+    deselectEverything();
 }
 
 function isConnected(a, b) {
