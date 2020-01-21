@@ -25,7 +25,20 @@ var links=[];
 var draw   = document.getElementById("draw")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 
+var state = {
+        selectedNode: null,
+        selectedLink: null,
+        justDragged: false,
+        justScaleTransGraph: false,
+        lastKeyDown: -1,
+        shiftNodeDrag: false,
+        selectedText: null
+    };
+
 var zoom = d3.zoom().on("zoom", function() {
+        //check clear here TODO: Make this better?
+        state.selectedLink = null;
+        state.selectedNode = null;
         svg.attr("transform", d3.event.transform)
         //http://bl.ocks.org/eyaler/10586116 //copy
     }),
@@ -93,6 +106,7 @@ var getSiblingTexts = function(sib) {
 }
 
 var mouseOverLink = function(d){
+    if(state.selectedLink!=null || state.selectedNode != null) return; //do nothing if an object is selected 
     node
         .transition(500)
         .style("opacity", function(o) {
@@ -112,7 +126,14 @@ var mouseOverLink = function(d){
         });
 }
 
-var mouseOutLink = function(d){
+var mouseOutLink = function(d,check = true){
+    if(check){
+        if(state.selectedLink!=null || state.selectedNode != null) return; //do nothing if an object is selected 
+    }
+    deselectAllLinks();
+}
+
+function deselectAllLinks(){
     node
         .transition(500)
         .style("opacity", 1);
@@ -124,6 +145,22 @@ var mouseOutLink = function(d){
     link
         .transition(500)
         .style("stroke-opacity", 1);
+}
+
+var mouseDownLink = function(d){
+    d3.event.stopPropagation();
+
+//    need to implement node selection
+//    if (state.selectedNode){
+//      thisGraph.removeSelectFromNode();
+//    }
+    var prevEdge = state.selectedLink;
+    if (!prevEdge || prevEdge !== d){
+        mouseOverLink(d,false)
+        state.selectedLink = d;
+    } else{
+        deselectAllLinks();
+    }
 }
 
 var mouseOverFunction = function(d) {
@@ -197,7 +234,8 @@ function update() {
         .attr('marker-end', 'url(#arrowhead)')
         .attr("fill", "none")
         .on("mouseover", mouseOverLink)
-        .on("mouseout", mouseOutLink);
+        .on("mouseout", mouseOutLink)
+        .on("mousedown",mouseDownLink);
 
     link.append("title")
         .text(function(d) {
@@ -367,6 +405,7 @@ function dragged(d) {
 }
 
 //Copy from here https://github.com/metacademy/directed-graph-creator;
+//Copy from here later http://bl.ocks.org/GerHobbelt/3071239
 
 //    function dragended(d) {
 //        if (!d3.event.active) simulation.alphaTarget(0);
