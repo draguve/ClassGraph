@@ -28,11 +28,8 @@ var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 var state = {
         selectedNode: null,
         selectedLink: null,
-        justDragged: false,
-        justScaleTransGraph: false,
         lastKeyDown: -1,
-        shiftNodeDrag: false,
-        selectedText: null
+        graphMouseDown: false
     };
 
 var zoom = d3.zoom()
@@ -56,6 +53,7 @@ var zoom = d3.zoom()
     link;
 
 root.on("mousedown",mouseDownGraph);
+root.on("mouseup",mouseUpGraph);
 
 root.append('defs').append('marker')
     .attrs({
@@ -247,8 +245,20 @@ var mouseOutFunction = function(d,check = true) {
 
 }
 
-function mouseDownGraph(d){
-    deselectEverything();
+function mouseDownGraph(){
+    state.graphMouseDown = true;
+  };
+
+function mouseUpGraph(d){
+    if(state.selectedLink!=null || state.selectedNode!=null){
+        deselectEverything();
+    } else if (state.graphMouseDown && d3.event.shiftKey){
+      // clicked not dragged from svg
+      var xycoords = d3.mouse(svg.node()),
+          d = {id: nodes[nodes.length-1].id+1, name: "New Node", x: xycoords[0], y: xycoords[1]};
+      nodes.push(d);
+      update();
+    } 
 }
 
 function isConnected(a, b) {
@@ -369,7 +379,6 @@ function update() {
     links.forEach(function(d) {
         linkedByIndex[d.source.index + "," + d.target.index] = true;
     });
-    console.log(linkedByIndex);
 }
 
 function getNode(id){
