@@ -45,9 +45,6 @@ var zoom = d3.zoom()
         }
     })
     .on("zoom", function() {
-        //check clear here TODO: Make this better?
-        state.selectedLink = null;
-        state.selectedNode = null;
         svg.attr("transform", d3.event.transform)
         //http://bl.ocks.org/eyaler/10586116 //copy
     }),
@@ -114,8 +111,15 @@ var getSiblingTexts = function(sib) {
     return texts;
 }
 
-var mouseOverLink = function(d){
-    if(state.selectedLink!=null || state.selectedNode != null) return; //do nothing if an object is selected 
+var mouseOverLink = function(d,check = true){
+    if(check){
+        if(state.selectedLink!=null){
+            return;
+        }
+        if(state.selectedNode!=null){
+            return;
+        }
+    }//do nothing if an object is selected 
     node
         .transition(500)
         .style("opacity", function(o) {
@@ -137,12 +141,19 @@ var mouseOverLink = function(d){
 
 var mouseOutLink = function(d,check = true){
     if(check){
-        if(state.selectedLink!=null || state.selectedNode != null) return; //do nothing if an object is selected 
+        if(state.selectedLink!=null){
+            return;
+        }
+        if(state.selectedNode!=null){
+            return;
+        }
     }
-    deselectAllLinks();
+    deselectEverything();
 }
 
-function deselectAllLinks(){
+function deselectEverything(){
+    state.selectedNode = null;
+    state.selectedLink = null;
     node
         .transition(500)
         .style("opacity", 1);
@@ -167,13 +178,22 @@ var mouseDownLink = function(d){
     if (!prevEdge || prevEdge !== d){
         mouseOverLink(d,false)
         state.selectedLink = d;
+        state.selectedNode = null;
     } else{
-        deselectAllLinks();
+        deselectEverything();
     }
 }
 
-var mouseOverFunction = function(d) {
-    var circle = d3.select(this);
+var mouseOverFunction = function(d,check = true) {
+    if(check){
+        if(state.selectedLink!=null){
+            return;
+        }
+        if(state.selectedNode!=null){
+            return;
+        }
+    }
+    //var circle = d3.select(this);
 
     node
         .transition(500)
@@ -193,16 +213,24 @@ var mouseOverFunction = function(d) {
             return o.source === d || o.target === d ? 1 : 0.2;
         });
 
-    circle
-        .transition(500)
-        .attr("r", function() {
-            return 1.4 * 10
-        });
+    //circle
+    //    .transition(500)
+    //    .attr("r", function() {
+    //        return 1.4 * 10
+    //    });
 }
 
-var mouseOutFunction = function() {
-    var circle = d3.select(this);
-
+var mouseOutFunction = function(d,check = true) {
+    console.log(check);
+    if(check){
+        if(state.selectedLink!=null){
+            return;
+        }
+        if(state.selectedNode!=null){
+            return;
+        }
+    }
+    //var circle = d3.select(this);
     node
         .transition(500)
         .style("opacity", 1);
@@ -211,9 +239,9 @@ var mouseOutFunction = function() {
         .transition(500)
         .style("stroke-opacity", 1.0);
 
-    circle
-        .transition(500)
-        .attr("r", 10);
+    //circle
+    //    .transition(500)
+    //    .attr("r", 10);
 
     edgelabels
         .transition(500)
@@ -242,8 +270,8 @@ function update() {
         .attr("class", "link")
         .attr('marker-end', 'url(#arrowhead)')
         .attr("fill", "none")
-        .on("mouseover", mouseOverLink)
-        .on("mouseout", mouseOutLink)
+        .on("mouseover", function(d){mouseOverLink(d,true);})
+        .on("mouseout", function(d){mouseOutLink(d,true);})
         .on("mousedown",mouseDownLink);
 
     link.append("title")
@@ -312,8 +340,8 @@ function update() {
         .style("fill", function(d, i) {
             return colors(i);
         })
-        .on("mouseover", mouseOverFunction)
-        .on("mouseout", mouseOutFunction);
+        .on("mouseover", function(d){mouseOverFunction(d,true);})
+        .on("mouseout", function(d){mouseOutFunction(d,true);});
 
     node.append("title")
         .text(function(d) {
@@ -406,6 +434,24 @@ function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart()
     d.fx = d.x;
     d.fy = d.y;
+    var prevNode = state.selectedNode;
+    if (!prevNode || prevNode !== d){
+        if (d3.event.shiftKey){
+            /*
+        state.shiftNodeDrag = d3.event.shiftKey;
+        // reposition dragged directed edge
+        thisGraph.dragLine.classed('hidden', false)
+            .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
+        return;
+        */
+        }else{
+            mouseOverFunction(d,false);
+            state.selectedNode = d;
+            state.selectedLink = null;
+        }
+    } else{
+        deselectEverything();
+    }
 }
 
 function dragged(d) {
