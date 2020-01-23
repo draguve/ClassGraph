@@ -8,6 +8,8 @@
         .node {}
 
         .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
+        .fakelink { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
+        .hidden {stroke-width: 0px;}
     </style>
 </head>
 <body>
@@ -29,7 +31,9 @@ var state = {
         selectedNode: null,
         selectedLink: null,
         lastKeyDown: -1,
-        graphMouseDown: false
+        graphMouseDown: false,
+        shiftNodeDrag: false,
+        dragNode: null
     };
 
 var zoom = d3.zoom()
@@ -247,7 +251,7 @@ var mouseOutFunction = function(d,check = true) {
 
 function mouseDownGraph(){
     state.graphMouseDown = true;
-  };
+};
 
 function mouseUpGraph(d){
     if(state.selectedLink!=null || state.selectedNode!=null){
@@ -258,7 +262,13 @@ function mouseUpGraph(d){
           d = {id: nodes[nodes.length-1].id+1, name: "New Node", x: xycoords[0], y: xycoords[1]};
       nodes.push(d);
       update();
-    } 
+    }
+    if(state.shiftNodeDrag){
+        state.shiftNodeDrag = false;
+        state.dragNode = null;
+        dragLine.classed('hidden', true);
+        //Disable the line here too if the user doesnt connect to the nodes
+    }
 }
 
 function isConnected(a, b) {
@@ -272,6 +282,9 @@ function isConnectedAsSource(a, b) {
 function isConnectedAsTarget(a, b) {
     return linkedByIndex[b.index + "," + a.index];
 }
+
+
+var dragLine = null;
 
 function update() {
     //clear all objects
@@ -287,7 +300,16 @@ function update() {
         .attr("fill", "none")
         .on("mouseover", function(d){mouseOverLink(d,true);})
         .on("mouseout", function(d){mouseOutLink(d,true);})
-        .on("mousedown",mouseDownLink);
+        .on("mousedown",mouseDownLink)
+        .on("mouseup",function(d){ 
+            d3.event.stopPropagation(); 
+            if(state.shiftNodeDrag){
+                state.shiftNodeDrag = false;
+                state.dragNode = null;
+                dragLine.classed('hidden', true)
+                    .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
+            }
+        });
 
     link.append("title")
         .text(function(d) {
@@ -344,6 +366,7 @@ function update() {
         .enter()
         .append("g")
         .attr("class", "node")
+        .on("mousedown",mouseDownNode)
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
@@ -357,6 +380,7 @@ function update() {
         })
         .on("mouseover", function(d){mouseOverFunction(d,true);})
         .on("mouseout", function(d){mouseOutFunction(d,true);});
+        
 
     node.append("title")
         .text(function(d) {
@@ -370,6 +394,13 @@ function update() {
         });
 
     node.exit().remove();
+
+    dragLine = svg.append('g')
+    .append("path")
+    .attr("class", "fakelink hidden")
+    .attr('marker-end', 'url(#arrowhead)')
+    .attr("fill", "none")
+    .attr('d', 'M10,10L0,0')
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
@@ -446,37 +477,57 @@ function ticked() {
                 return 'rotate(0)';
             }
         }
-
     });
 }
 
 function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart()
-    d.fx = d.x;
-    d.fy = d.y;
-    var prevNode = state.selectedNode;
-    if (!prevNode || prevNode !== d){
-        if (d3.event.shiftKey){
-            /*
-        state.shiftNodeDrag = d3.event.shiftKey;
-        // reposition dragged directed edge
-        thisGraph.dragLine.classed('hidden', false)
-            .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
-        return;
-        */
-        }else{
+    if(!state.shiftNodeDrag){
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+        d.fx = d.x;
+        d.fy = d.y;
+        var prevNode = state.selectedNode;
+        if (!prevNode || prevNode !== d){
             mouseOverFunction(d,false);
             state.selectedNode = d;
             state.selectedLink = null;
+        } else{
+            deselectEverything();
         }
-    } else{
-        deselectEverything();
+    }
+}
+
+function mouseDownNode(d){
+    if (d3.event.shiftKey){
+        console.log("Test");
+        if(state.shiftNodeDrag){
+            dragLine.classed("hidden,true");
+             if (state.dragNode !== d){
+            // we're in a different node: create new edge for mousedown edge and add to graph
+                var newEdge = {source: state.dragNode.id, target: d.id , type: "New Link"+links.length };
+                links.push(newEdge);
+                update();
+            }
+            state.shiftNodeDrag = false;
+            state.dragNode = null;
+        }else{
+            //enable line
+            dragLine.classed('hidden', false)
+                .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
+            state.shiftNodeDrag = d3.event.shiftKey;
+            state.dragNode = d;
+        }
     }
 }
 
 function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
+    if (state.shiftNodeDrag){
+        var x=d3.mouse(svg.node())[0],
+        y=d3.mouse(svg.node())[1]-3
+      dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + x + ',' + y);
+    }else{    
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
 }
 
 //Copy from here https://github.com/metacademy/directed-graph-creator;
