@@ -7,13 +7,19 @@ var draw   = document.getElementById("draw")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 
 var state = {
-        selectedNode: null,
-        selectedLink: null,
-        lastKeyDown: -1,
-        graphMouseDown: false,
-        shiftNodeDrag: false,
-        dragNode: null
-    };
+    selectedNode: null,
+    selectedLink: null,
+    lastKeyDown: -1,
+    graphMouseDown: false,
+    shiftNodeDrag: false,
+    dragNode: null,
+    lastKeyDown:-1
+};
+
+var consts =  {
+    DELETE_KEY: 46,
+    ENTER_KEY: 13
+};
 
 var zoom = d3.zoom()
     .filter(function () {
@@ -37,6 +43,12 @@ var zoom = d3.zoom()
 
 root.on("mousedown",mouseDownGraph);
 root.on("mouseup",mouseUpGraph);
+d3.select(window).on("keydown", function(){
+      svgKeyDown();
+    })
+    .on("keyup", function(){
+      svgKeyUp();
+    });
 
 root.append('defs').append('marker')
     .attrs({
@@ -507,6 +519,46 @@ function dragged(d) {
         d.fx = d3.event.x;
         d.fy = d3.event.y;
     }
+}
+
+function svgKeyUp() {
+    state.lastKeyDown = -1;
+}
+
+function svgKeyDown(){
+    // make sure repeated key presses don't register for each keydown
+    if(state.lastKeyDown !== -1) return;
+
+    state.lastKeyDown = d3.event.keyCode;
+    var selectedNode = state.selectedNode,
+        selectedEdge = state.selectedLink;
+    
+
+    switch(d3.event.keyCode) {
+    case consts.BACKSPACE_KEY:
+    case consts.DELETE_KEY:
+      d3.event.preventDefault();
+      if (selectedNode){
+        nodes.splice(nodes.indexOf(selectedNode), 1);
+        spliceLinksForNode(selectedNode);
+        state.selectedNode = null;
+        update();
+      } else if (selectedEdge){
+        links.splice(links.indexOf(selectedEdge), 1);
+        state.selectedEdge = null;
+        update();
+      }
+      break; 
+    }
+}
+
+spliceLinksForNode = function(node) {
+    var toSplice = links.filter(function(l) {
+      return (l.source === node || l.target === node);
+    });
+    toSplice.map(function(l) {
+      links.splice(links.indexOf(l), 1);
+    });
 }
 
 //Copy from here https://github.com/metacademy/directed-graph-creator;
