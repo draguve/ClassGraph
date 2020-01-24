@@ -18,7 +18,8 @@
     {
       "name": "Graph Database",
       "label": "Database",
-      "id": 4
+      "id": 4,
+      "description": "A Pain in my ass"
     }
   ],
   "links": [

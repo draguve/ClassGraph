@@ -1,5 +1,5 @@
 window.onload = function(){
-    root.attr("height",height-50);
+    root.attr("height",height);
 }
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
@@ -53,6 +53,9 @@ d3.select(window).on("keydown", function(){
     .on("keyup", function(){
       svgKeyUp();
     });
+
+document.getElementById("node-select-save").onclick = saveDataNode;
+document.getElementById("link-select-save").onclick = saveDataLink;
 
 root.append('defs').append('marker')
     .attrs({
@@ -193,6 +196,25 @@ function setupUIForLink(){
     document.getElementById("link-select-desc").value = (state.selectedLink.description) ? state.selectedLink.description : "";
     document.getElementById("link-select-from").value = state.selectedLink.source.name;
     document.getElementById("link-select-to").value = state.selectedLink.target.name;
+}
+
+function setupUIForNode(){
+    if(!state.selectedNode) return;
+    document.getElementById("node-select").style.display = "inline";
+    document.getElementById("node-select-name").value = state.selectedNode.name;
+    document.getElementById("node-select-desc").value = (state.selectedNode.description) ? state.selectedNode.description : "";
+}
+
+function saveDataNode(){
+    state.selectedNode.name = document.getElementById("node-select-name").value;
+    state.selectedNode.description = document.getElementById("node-select-desc").value;
+    update();
+}
+
+function saveDataLink(){
+    state.selectedLink.type = document.getElementById("link-select-name").value;
+    state.selectedLink.description = document.getElementById("link-select-desc").value;
+    update();
 }
 
 var mouseOverFunction = function(d,check = true) {
@@ -501,7 +523,7 @@ function dragstarted(d) {
             mouseOverFunction(d,false);
             state.selectedNode = d;
             state.selectedLink = null;
-            document.getElementById("node-select").style.display = "inline";
+            setupUIForNode();
         } else{
             deselectEverything();
         }
