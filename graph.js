@@ -162,6 +162,10 @@ function deselectEverything(){
     link
         .transition(500)
         .style("stroke-opacity", 1);
+
+    document.getElementById("node-select").style.display = "none";
+    document.getElementById("link-select").style.display = "none";
+
 }
 
 var mouseDownLink = function(d){
@@ -173,9 +177,11 @@ var mouseDownLink = function(d){
 //    }
     var prevEdge = state.selectedLink;
     if (!prevEdge || prevEdge !== d){
+        deselectEverything();
         mouseOverLink(d,false)
         state.selectedLink = d;
         state.selectedNode = null;
+        document.getElementById("link-select").style.display = "inline";
     } else{
         deselectEverything();
     }
@@ -483,9 +489,11 @@ function dragstarted(d) {
         d.fy = d.y;
         var prevNode = state.selectedNode;
         if (!prevNode || prevNode !== d){
+            deselectEverything();
             mouseOverFunction(d,false);
             state.selectedNode = d;
             state.selectedLink = null;
+            document.getElementById("node-select").style.display = "inline";
         } else{
             deselectEverything();
         }
