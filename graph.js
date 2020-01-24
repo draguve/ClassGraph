@@ -1,5 +1,4 @@
 window.onload = function(){
-    console.log("This Ran");
     root.attr("height",height-50);
 }
 
@@ -181,10 +180,19 @@ var mouseDownLink = function(d){
         mouseOverLink(d,false)
         state.selectedLink = d;
         state.selectedNode = null;
-        document.getElementById("link-select").style.display = "inline";
+        setupUIForLink();
     } else{
         deselectEverything();
     }
+}
+
+function setupUIForLink(){
+    if(!state.selectedLink) return;
+    document.getElementById("link-select").style.display = "inline";
+    document.getElementById("link-select-name").value = state.selectedLink.type;
+    document.getElementById("link-select-desc").value = (state.selectedLink.description) ? state.selectedLink.description : "";
+    document.getElementById("link-select-from").value = state.selectedLink.source.name;
+    document.getElementById("link-select-to").value = state.selectedLink.target.name;
 }
 
 var mouseOverFunction = function(d,check = true) {
