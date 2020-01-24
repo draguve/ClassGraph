@@ -1,3 +1,8 @@
+window.onload = function(){
+    console.log("This Ran");
+    root.attr("height",height-50);
+}
+
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 var nodes=[];
@@ -37,7 +42,7 @@ var zoom = d3.zoom()
     root = d3.select("svg"),
     svg = root.call(zoom).append("g"),
     width = drawRect.width,
-    height = drawRect.height,
+    height = window.innerHeight,
     node,
     link;
 
