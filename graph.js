@@ -8,7 +8,10 @@ var nodes=[];
 var links=[];
 
 var draw   = document.getElementById("draw")
+var searchBox = document.getElementById("searchBox")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
+
+searchBox.oninput = searchBoxValueChanged;
 
 var state = {
     selectedNode: null,
@@ -17,7 +20,8 @@ var state = {
     graphMouseDown: false,
     shiftNodeDrag: false,
     dragNode: null,
-    lastKeyDown:-1
+    lastKeyDown:-1,
+    searchedObjects: []
 };
 
 var consts =  {
@@ -153,6 +157,7 @@ var mouseOutLink = function(d,check = true){
 function deselectEverything(){
     state.selectedNode = null;
     state.selectedLink = null;
+    state.searchedObjects.length = 0;
     node
         .transition(500)
         .style("opacity", 1);
@@ -168,6 +173,52 @@ function deselectEverything(){
     document.getElementById("node-select").style.display = "none";
     document.getElementById("link-select").style.display = "none";
 
+}
+
+function searchBoxValueChanged(){
+    deselectEverything();
+    //Generate the regular expression
+    var searchString = new RegExp(searchBox.value, "i");
+    
+    node
+        .transition(500)
+        .style("opacity", function(o) {
+            if(o.id){
+                if(searchString.test(o.id.toString())){
+                    state.searchedObjects.push(o);
+                    return 1.0;
+                }
+            }
+            if(o.name){
+                if(searchString.test(o.name)){
+                    state.searchedObjects.push(o);
+                    return 1.0;
+                }
+            }
+            return 0.2;
+        });
+
+    edgelabels
+        .transition(500)
+        .style("opacity", function(o) {
+            if(o.type){
+                if(searchString.test(o.type)){
+                    return 1.0;
+                }
+            }
+            return 0.2;
+        });
+    link
+        .transition(500)
+        .style("stroke-opacity", function(o) {
+            if(o.type){
+                if(searchString.test(o.type)){
+                    state.searchedObjects.push(o);
+                    return 1.0;
+                }
+            }
+            return 0.2;
+        });
 }
 
 var mouseDownLink = function(d){
