@@ -10,6 +10,7 @@ var links=[];
 var draw   = document.getElementById("draw")
 var searchBox = document.getElementById("searchBox")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
+var nodeTagInput = document.getElementById("node-new-tag-input");
 
 searchBox.oninput = searchBoxValueChanged;
 searchBox.onfocus = searchBoxValueChanged;
@@ -26,6 +27,18 @@ searchBox.onkeydown = function(evt) {
         searchBoxValueChanged();
     }
 };
+
+nodeTagInput.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      addNewTagToNode();
+    }
+});
+
+document.getElementById("node-btn-add-tag").onclick = addNewTagToNode;
 
 var state = {
     selectedNode: null,
@@ -262,6 +275,19 @@ function setupUIForNode(){
     document.getElementById("node-select").style.display = "inline";
     document.getElementById("node-select-name").value = state.selectedNode.name;
     document.getElementById("node-select-desc").value = (state.selectedNode.description) ? state.selectedNode.description : "";
+    tagsHolder = document.getElementById("node-tags-holder")
+    tagsHolder.innerHTML = "";
+    nodeTagInput.value = "";
+
+    if("tags" in state.selectedNode){
+        for(var i=0;i<state.selectedNode.tags.length;i++){
+            console.log(i);
+            var newTag = document.createElement("span");
+            newTag.className = "tag badge badge-pill badge-primary";
+            newTag.innerHTML = state.selectedNode.tags[i];
+            tagsHolder.appendChild(newTag);
+        }
+    }
 }
 
 function saveDataNode(){
@@ -641,6 +667,19 @@ function svgKeyDown(){
       }
       break; 
     }
+}
+
+function addNewTagToNode(){
+    if(state.selectedNode){
+        if(!("tags" in state.selectedNode)){
+            state.selectedNode["tags"] = [];
+        }
+        if(state.selectedNode.tags.includes(nodeTagInput.value)){
+            return;
+        }
+        state.selectedNode.tags.push(nodeTagInput.value);
+    }
+    setupUIForNode();
 }
 
 spliceLinksForNode = function(node) {
