@@ -21,6 +21,10 @@
         .hidden {
             stroke-width: 0px;
         }
+
+        .tag{
+            margin: 0.25em;
+        }
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -76,6 +80,16 @@
 
                     <div class="form-group">
                         <textarea id="node-select-desc" class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Purpose of Existance"></textarea>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input id="node-new-tag-input" type="text" class="form-control" placeholder="New Tag" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <div class="input-group-append">
+                            <button id="node-btn-add-tag" class="btn btn-outline-secondary" type="button" id="button-addon2">Add</button>
+                        </div>
+                    </div>
+                    <div id="node-tags" class="form-group">
+                        <span class="tag badge badge-pill badge-primary">Primary</span>
+                        <span class="tag badge badge-pill badge-primary">Primary</span>
                     </div>
                     <button id="node-select-save" class="btn btn-primary" type="submit">Save Changes</button>
                 </div>
