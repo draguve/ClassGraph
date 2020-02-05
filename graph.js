@@ -670,14 +670,18 @@ function svgKeyDown(){
 }
 
 function addNewTagToNode(){
+    var tagInput = nodeTagInput.value.toLowerCase();
     if(state.selectedNode){
         if(!("tags" in state.selectedNode)){
             state.selectedNode["tags"] = [];
         }
-        if(state.selectedNode.tags.includes(nodeTagInput.value)){
+        if(tagInput === ""){
             return;
         }
-        state.selectedNode.tags.push(nodeTagInput.value);
+        if(state.selectedNode.tags.includes(tagInput)){
+            return;
+        }
+        state.selectedNode.tags.push(tagInput);
     }
     setupUIForNode();
 }
