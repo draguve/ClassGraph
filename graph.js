@@ -12,6 +12,7 @@ var searchBox = document.getElementById("searchBox")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 
 searchBox.oninput = searchBoxValueChanged;
+searchBox.onfocus = searchBoxValueChanged;
 
 var state = {
     selectedNode: null,
@@ -40,7 +41,6 @@ var zoom = d3.zoom()
     })
     .on("zoom", function() {
         svg.attr("transform", d3.event.transform)
-        //http://bl.ocks.org/eyaler/10586116 //copy
     }),
     root = d3.select("svg"),
     svg = root.call(zoom).append("g"),
@@ -223,11 +223,6 @@ function searchBoxValueChanged(){
 
 var mouseDownLink = function(d){
     d3.event.stopPropagation();
-
-//    need to implement node selection
-//    if (state.selectedNode){
-//      thisGraph.removeSelectFromNode();
-//    }
     var prevEdge = state.selectedLink;
     if (!prevEdge || prevEdge !== d){
         deselectEverything();
@@ -277,7 +272,6 @@ var mouseOverFunction = function(d,check = true) {
             return;
         }
     }
-    //var circle = d3.select(this);
 
     node
         .transition(500)
@@ -296,12 +290,6 @@ var mouseOverFunction = function(d,check = true) {
         .style("stroke-opacity", function(o) {
             return o.source === d || o.target === d ? 1 : 0.2;
         });
-
-    //circle
-    //    .transition(500)
-    //    .attr("r", function() {
-    //        return 1.4 * 10
-    //    });
 }
 
 var mouseOutFunction = function(d,check = true) {
@@ -313,7 +301,6 @@ var mouseOutFunction = function(d,check = true) {
             return;
         }
     }
-    //var circle = d3.select(this);
     node
         .transition(500)
         .style("opacity", 1);
@@ -322,9 +309,6 @@ var mouseOutFunction = function(d,check = true) {
         .transition(500)
         .style("stroke-opacity", 1.0);
 
-    //circle
-    //    .transition(500)
-    //    .attr("r", 10);
 
     edgelabels
         .transition(500)
@@ -655,11 +639,5 @@ spliceLinksForNode = function(node) {
     });
 }
 
-//Copy from here https://github.com/metacademy/directed-graph-creator;
-//Copy from here later http://bl.ocks.org/GerHobbelt/3071239
 
-//    function dragended(d) {
-//        if (!d3.event.active) simulation.alphaTarget(0);
-//        d.fx = undefined;
-//        d.fy = undefined;
-//    }
+//Copy from here later http://bl.ocks.org/GerHobbelt/3071239
