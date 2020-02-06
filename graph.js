@@ -11,6 +11,7 @@ var draw   = document.getElementById("draw")
 var searchBox = document.getElementById("searchBox")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 var nodeTagInput = document.getElementById("node-new-tag-input");
+var linkTagInput = document.getElementById("link-new-tag-input");
 
 searchBox.oninput = searchBoxValueChanged;
 searchBox.onfocus = searchBoxValueChanged;
@@ -35,6 +36,13 @@ nodeTagInput.addEventListener("keyup", function(event) {
       event.preventDefault();
       // Trigger the button element with a click
       addNewTagToNode();
+    }
+});
+
+linkTagInput.addEventListener("keyup",function(event){
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      addNewTagToLink();
     }
 });
 
@@ -268,6 +276,20 @@ function setupUIForLink(){
     document.getElementById("link-select-desc").value = (state.selectedLink.description) ? state.selectedLink.description : "";
     document.getElementById("link-select-from").value = state.selectedLink.source.name;
     document.getElementById("link-select-to").value = state.selectedLink.target.name;
+
+    tagsHolder = document.getElementById("link-tags-holder")
+    tagsHolder.innerHTML = "";
+    linkTagInput.value = "";
+
+    if("tags" in state.selectedLink){
+        for(var i=0;i<state.selectedLink.tags.length;i++){
+            console.log(i);
+            var newTag = document.createElement("span");
+            newTag.className = "tag badge badge-pill badge-primary";
+            newTag.innerHTML = state.selectedLink.tags[i];
+            tagsHolder.appendChild(newTag);
+        }
+    }
 }
 
 function setupUIForNode(){
@@ -684,6 +706,23 @@ function addNewTagToNode(){
         state.selectedNode.tags.push(tagInput);
     }
     setupUIForNode();
+}
+
+function addNewTagToLink(){
+    var tagInput = linkTagInput.value.toLowerCase();
+    if(state.selectedLink){
+        if(!("tags" in state.selectedLink)){
+            state.selectedLink["tags"] = [];
+        }
+        if(tagInput === ""){
+            return;
+        }
+        if(state.selectedLink.tags.includes(tagInput)){
+            return;
+        }
+        state.selectedLink.tags.push(tagInput);
+    }
+    setupUIForLink();
 }
 
 spliceLinksForNode = function(node) {
