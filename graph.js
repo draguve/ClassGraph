@@ -12,6 +12,7 @@ var searchBox = document.getElementById("searchBox")
 var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
 var nodeTagInput = document.getElementById("node-new-tag-input");
 var linkTagInput = document.getElementById("link-new-tag-input");
+var allTags = {}
 
 searchBox.oninput = searchBoxValueChanged;
 searchBox.onfocus = searchBoxValueChanged;
@@ -306,7 +307,7 @@ function setupUIForLink(){
             var newTag = document.createElement("span");
             newTag.className = "tag badge badge-pill badge-primary";
             newTag.innerHTML = key;
-            newTag.style.backgroundColor = state.selectedLink.tags[key];
+            newTag.style.backgroundColor = allTags[key];
             tagsHolder.appendChild(newTag);
         }
     }
@@ -557,6 +558,20 @@ function update() {
     linkedByIndex = {};
     links.forEach(function(d) {
         linkedByIndex[d.source.index + "," + d.target.index] = true;
+        if("tags" in d){      
+            for(var key in d.tags){
+                //TODO: fix bug here where initially same tags on different objects can have different color
+                allTags[key] = d.tags[key];
+            }
+        }
+    });
+    nodes.forEach(function(newNode){
+        if("tags" in newNode){      
+            for(var key in newNode.tags){
+                //TODO: fix bug here where initially same tags on different objects can have different color
+                allTags[key] = d.tags[key];
+            }
+        }
     });
 }
 
@@ -723,7 +738,13 @@ function addNewTagToNode(){
         if(tagInput in state.selectedNode.tags){
             return;
         }
-        state.selectedNode.tags[tagInput] = randomColor();
+        if(tagInput in allTags){
+            state.selectedNode.tags[tagInput] = allTags[tagInput];
+        }else{
+            var newColor = randomColor();
+            state.selectedNode.tags[tagInput] = newColor;
+            allTags[tagInput] = newColor;
+        }
     }
     setupUIForNode();
 }
@@ -740,7 +761,13 @@ function addNewTagToLink(){
         if(tagInput in state.selectedLink.tags){
             return;
         }
-        state.selectedLink.tags[tagInput] = randomColor();
+        if(tagInput in allTags){
+            state.selectedLink.tags[tagInput] = allTags[tagInput];
+        }else{
+            var newColor = randomColor();
+            state.selectedLink.tags[tagInput] = newColor;
+            allTags[tagInput] = newColor;
+        }
     }
     setupUIForLink();
 }
