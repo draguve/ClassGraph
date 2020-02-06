@@ -229,6 +229,13 @@ function searchBoxValueChanged(){
                     return 1.0;
                 }
             }
+            if(o.tags){
+                for(var key in o.tags){
+                    if(searchString.test(key)){
+                        return 1.0;
+                    }
+                }
+            }
             return 0.2;
         });
 
@@ -238,6 +245,13 @@ function searchBoxValueChanged(){
             if(o.type){
                 if(searchString.test(o.type)){
                     return 1.0;
+                }
+            }
+            if(o.tags){
+                for(var key in o.tags){
+                    if(searchString.test(key)){
+                        return 1.0;
+                    }
                 }
             }
             return 0.2;
@@ -251,6 +265,12 @@ function searchBoxValueChanged(){
                     return 1.0;
                 }
             }
+            //TODO : optimise this
+            for(var key in o.tags){
+                    if(searchString.test(key)){
+                        return 1.0;
+                    }
+                }
             return 0.2;
         });
 }
@@ -282,11 +302,11 @@ function setupUIForLink(){
     linkTagInput.value = "";
 
     if("tags" in state.selectedLink){
-        for(var i=0;i<state.selectedLink.tags.length;i++){
-            console.log(i);
+        for(var key in state.selectedLink.tags){
             var newTag = document.createElement("span");
             newTag.className = "tag badge badge-pill badge-primary";
-            newTag.innerHTML = state.selectedLink.tags[i];
+            newTag.innerHTML = key;
+            newTag.style.backgroundColor = state.selectedLink.tags[key];
             tagsHolder.appendChild(newTag);
         }
     }
@@ -302,11 +322,11 @@ function setupUIForNode(){
     nodeTagInput.value = "";
 
     if("tags" in state.selectedNode){
-        for(var i=0;i<state.selectedNode.tags.length;i++){
-            console.log(i);
+        for(var key in state.selectedNode.tags){
             var newTag = document.createElement("span");
             newTag.className = "tag badge badge-pill badge-primary";
-            newTag.innerHTML = state.selectedNode.tags[i];
+            newTag.innerHTML = key;
+            newTag.style.backgroundColor = state.selectedNode.tags[key];
             tagsHolder.appendChild(newTag);
         }
     }
@@ -695,15 +715,15 @@ function addNewTagToNode(){
     var tagInput = nodeTagInput.value.toLowerCase();
     if(state.selectedNode){
         if(!("tags" in state.selectedNode)){
-            state.selectedNode["tags"] = [];
+            state.selectedNode["tags"] = {};
         }
         if(tagInput === ""){
             return;
         }
-        if(state.selectedNode.tags.includes(tagInput)){
+        if(tagInput in state.selectedNode.tags){
             return;
         }
-        state.selectedNode.tags.push(tagInput);
+        state.selectedNode.tags[tagInput] = randomColor();
     }
     setupUIForNode();
 }
@@ -712,15 +732,15 @@ function addNewTagToLink(){
     var tagInput = linkTagInput.value.toLowerCase();
     if(state.selectedLink){
         if(!("tags" in state.selectedLink)){
-            state.selectedLink["tags"] = [];
+            state.selectedLink["tags"] = {};
         }
         if(tagInput === ""){
             return;
         }
-        if(state.selectedLink.tags.includes(tagInput)){
+        if(tagInput in state.selectedLink.tags){
             return;
         }
-        state.selectedLink.tags.push(tagInput);
+        state.selectedLink.tags[tagInput] = randomColor();
     }
     setupUIForLink();
 }
@@ -736,3 +756,4 @@ spliceLinksForNode = function(node) {
 
 
 //Copy from here later http://bl.ocks.org/GerHobbelt/3071239
+//TODO: save changes on enter click 
