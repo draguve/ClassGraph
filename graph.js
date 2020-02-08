@@ -72,9 +72,9 @@ window.onload = function() {
         .filter(function() {
             switch (d3.event.type) {
                 case "mousedown":
-                    return (d3.event.button === 1 || d3.event.altKey)
+                    return (d3.event.button === 1 || d3.event.altKey);
                 case "wheel":
-                    return d3.event.button === 0
+                    return d3.event.button === 0;
                 default:
                     return false;
             }
@@ -229,8 +229,9 @@ window.onload = function() {
 
         var listNodes = [];
         var listLinks = [];
-        var listTags = [];
+        //var listTags = [];
 
+        var tags = {};
         node
             .transition(500)
             .style("opacity", function(o) {
@@ -240,7 +241,12 @@ window.onload = function() {
                         if (searchString.test(key)) {
                             nodesColor[o.id] = allTags[key];
                             this.children[0].style.fill = allTags[key];
-                            listTags.push({ data: o, type: "node", tag: key });
+                            if (!(key in tags)) {
+                                tags[key] = {};
+                                tags[key].color = allTags[key];
+                                tags[key].items = [];
+                            }
+                            tags[key].items.push({ data: o, type: "node" });
                             found = true;
                         }
                     }
@@ -283,7 +289,12 @@ window.onload = function() {
                     if (searchString.test(key)) {
                         linksColor[o.type] = allTags[key];
                         this.style.stroke = allTags[key];
-                        listTags.push({ data: o, type: "link", tag: key });
+                        if (!(key in tags)) {
+                            tags[key] = {};
+                            tags[key].color = allTags[key];
+                            tags[key].items = [];
+                        }
+                        tags[key].items.push({ data: o, type: "link" });
                         found = true;
                     }
                 }
@@ -306,7 +317,6 @@ window.onload = function() {
         searchNodes.innerHTML = "";
         searchTags.innerHTML = "";
 
-        console.log(listTags);
 
         for (var i = 0; i < listNodes.length; i++) {
             var newTag = document.createElement("div");
@@ -322,16 +332,27 @@ window.onload = function() {
             newTag.style.backgroundColor = linksColor[listLinks[i].type];
             searchLinks.appendChild(newTag);
         }
-        for (var i = 0; i < listTags.length; i++) {
+        /*for (var i = 0; i < listTags.length; i++) {
             var newTag = document.createElement("div");
             newTag.className = "card-body";
-            if (listTags[i].type == "node") {
+            if (tags[i].type == "node") {
                 newTag.innerHTML = "Node " + listTags[i].data.name + " " + listTags[i].tag;
                 newTag.style.backgroundColor = nodesColor[listTags[i].data.id];
             } else {
                 newTag.innerHTML = "Link " + listTags[i].data.type + " " + listTags[i].tag;
                 newTag.style.backgroundColor = linksColor[listTags[i].data.type];
             }
+            searchTags.appendChild(newTag);
+        }*/
+        for (key in tags) {
+            var badge = document.createElement("span");
+            badge.className = "tag badge badge-pill badge-primary";
+            badge.innerHTML = tags[key].items.length;
+            newTag = document.createElement("div");
+            newTag.className = "card-body";
+            newTag.innerHTML = key;
+            newTag.appendChild(badge);
+            newTag.style.backgroundColor = allTags[key];
             searchTags.appendChild(newTag);
         }
     }
@@ -464,6 +485,8 @@ window.onload = function() {
 
     function mouseUpGraph(d) {
         if (state.selectedLink != null || state.selectedNode != null) {
+            searchBox.value = "";
+            searchBoxValueChanged();
             deselectEverything();
         } else if (state.shiftNodeDrag) {
             state.shiftNodeDrag = false;
@@ -482,7 +505,6 @@ window.onload = function() {
             nodes.push(d);
             update();
         }
-
     }
 
     function isConnected(a, b) {
@@ -865,7 +887,7 @@ window.onload = function() {
         toSplice.map(function(l) {
             links.splice(links.indexOf(l), 1);
         });
-    }
+    };
 
     function updateTags() {
         $(function() {
