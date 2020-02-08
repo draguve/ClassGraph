@@ -229,7 +229,6 @@ window.onload = function() {
 
         var listNodes = [];
         var listLinks = [];
-        //var listTags = [];
 
         var tags = {};
         node
@@ -323,6 +322,11 @@ window.onload = function() {
             newTag.className = "card-body";
             newTag.innerHTML = listNodes[i].name;
             newTag.style.backgroundColor = nodesColor[listNodes[i].id];
+            $(newTag).bind("click", {
+                id: listNodes[i].id
+            }, function(event) {
+                nodeSearchClick(event.data.id);
+            });
             searchNodes.appendChild(newTag);
         }
         for (var i = 0; i < listLinks.length; i++) {
@@ -330,20 +334,14 @@ window.onload = function() {
             newTag.className = "card-body";
             newTag.innerHTML = listLinks[i].type;
             newTag.style.backgroundColor = linksColor[listLinks[i].type];
+            $(newTag).bind("click", {
+                index: listLinks[i].index
+            }, function(event) {
+                linkSearchClick(event.data.index);
+            });
             searchLinks.appendChild(newTag);
         }
-        /*for (var i = 0; i < listTags.length; i++) {
-            var newTag = document.createElement("div");
-            newTag.className = "card-body";
-            if (tags[i].type == "node") {
-                newTag.innerHTML = "Node " + listTags[i].data.name + " " + listTags[i].tag;
-                newTag.style.backgroundColor = nodesColor[listTags[i].data.id];
-            } else {
-                newTag.innerHTML = "Link " + listTags[i].data.type + " " + listTags[i].tag;
-                newTag.style.backgroundColor = linksColor[listTags[i].data.type];
-            }
-            searchTags.appendChild(newTag);
-        }*/
+
         for (key in tags) {
             var badge = document.createElement("span");
             badge.className = "tag badge badge-pill badge-primary";
@@ -353,8 +351,36 @@ window.onload = function() {
             newTag.innerHTML = key;
             newTag.appendChild(badge);
             newTag.style.backgroundColor = allTags[key];
+            $(newTag).bind("click", {
+                tag: key
+            }, function(event) {
+                tagSearchClick(event.data.tag);
+            });
             searchTags.appendChild(newTag);
         }
+    }
+
+    function nodeSearchClick(nodeid) {
+        var onclicknode = getNode(nodeid);
+        deselectEverything();
+        mouseOverFunction(onclicknode, false);
+        state.selectedNode = onclicknode;
+        state.selectedLink = null;
+        setupUIForNode();
+    }
+
+    function linkSearchClick(linkindex) {
+        var onclicklink = links[linkindex];
+        deselectEverything();
+        mouseOverLink(onclicklink, false);
+        state.selectedNode = null;
+        state.selectedLink = onclicklink;
+        setupUIForLink();
+    }
+
+    function tagSearchClick(key) {
+        searchBox.value = key;
+        searchBoxValueChanged();
     }
 
     var mouseDownLink = function(d) {
