@@ -56,7 +56,6 @@ window.onload = function() {
         graphMouseDown: false,
         shiftNodeDrag: false,
         dragNode: null,
-        lastKeyDown: -1,
         searchedObjects: []
     };
 
@@ -148,9 +147,9 @@ window.onload = function() {
         texts = []
         for (var i = 0; i < sib.length; ++i) {
             texts.push(sib[i].type);
-        };
+        }
         return texts;
-    }
+    };
 
     var mouseOverLink = function(d, check = true) {
         if (check) {
@@ -446,7 +445,7 @@ window.onload = function() {
     function update() {
         //clear all objects
         d3.selectAll("g > *").remove()
-        //update the links dict
+            //update the links dict
 
         link = svg.selectAll(".link")
             .data(links)
@@ -807,7 +806,7 @@ window.onload = function() {
         });
     }
 
-    function updateTags(){
+    function updateTags() {
         $(function() {
             $("#node-new-tag-input").autocomplete({
                 source: allTagsArray
