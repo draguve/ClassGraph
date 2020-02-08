@@ -13,6 +13,10 @@ window.onload = function() {
     var allTags = {};
     var allTagsArray = [];
 
+    var searchLinks = document.getElementById("link-col");
+    var searchNodes = document.getElementById("node-col");
+    var searchTags = document.getElementById("tags-col");
+
     //enable autocomplete for tags
 
     searchBox.oninput = searchBoxValueChanged;
@@ -56,8 +60,7 @@ window.onload = function() {
         lastKeyDown: -1,
         graphMouseDown: false,
         shiftNodeDrag: false,
-        dragNode: null,
-        searchedObjects: []
+        dragNode: null
     };
 
     var consts = {
@@ -195,7 +198,6 @@ window.onload = function() {
     function deselectEverything() {
         state.selectedNode = null;
         state.selectedLink = null;
-        state.searchedObjects.length = 0;
 
         node
             .transition(500)
@@ -225,6 +227,10 @@ window.onload = function() {
         var nodesColor = {};
         var linksColor = {};
 
+        var listNodes = [];
+        var listLinks = [];
+        var listTags = [];
+
         node
             .transition(500)
             .style("opacity", function(o) {
@@ -232,17 +238,18 @@ window.onload = function() {
                 if (o.tags) {
                     for (var key in o.tags) {
                         if (searchString.test(key)) {
-                            nodesColor[o] = allTags[key];
+                            nodesColor[o.id] = allTags[key];
                             this.children[0].style.fill = allTags[key];
+                            listTags.push({ data: o, type: "node", tag: key });
                             found = true;
                         }
                     }
                 }
                 if (o.name) {
                     if (searchString.test(o.name)) {
-                        nodesColor[o] = o.color;
+                        nodesColor[o.id] = o.color;
                         this.children[0].style.fill = o.color;
-                        state.searchedObjects.push(o);
+                        listNodes.push(o);
                         found = true;
                     }
                 }
@@ -274,16 +281,17 @@ window.onload = function() {
                 //TODO : optimise this
                 for (var key in o.tags) {
                     if (searchString.test(key)) {
-                        linksColor[o] = allTags[key];
+                        linksColor[o.type] = allTags[key];
                         this.style.stroke = allTags[key];
+                        listTags.push({ data: o, type: "link", tag: key });
                         found = true;
                     }
                 }
                 if (o.type) {
                     if (searchString.test(o.type)) {
-                        linksColor[o] = "#999";
+                        linksColor[o.type] = "#999";
                         this.style.stroke = "#999";
-                        state.searchedObjects.push(o);
+                        listLinks.push(o);
                         found = true;
                     }
                 }
@@ -293,8 +301,38 @@ window.onload = function() {
 
         searchResults.style.display = "inline";
         //searchResults.innerHTML = "";
-        for (var i = 0; i < state.searchedObjects.length; i++) {
-            searchResults.innerHTML += "";
+
+        searchLinks.innerHTML = "";
+        searchNodes.innerHTML = "";
+        searchTags.innerHTML = "";
+
+        console.log(listTags);
+
+        for (var i = 0; i < listNodes.length; i++) {
+            var newTag = document.createElement("div");
+            newTag.className = "card-body";
+            newTag.innerHTML = listNodes[i].name;
+            newTag.style.backgroundColor = nodesColor[listNodes[i].id];
+            searchNodes.appendChild(newTag);
+        }
+        for (var i = 0; i < listLinks.length; i++) {
+            var newTag = document.createElement("div");
+            newTag.className = "card-body";
+            newTag.innerHTML = listLinks[i].type;
+            newTag.style.backgroundColor = linksColor[listLinks[i].type];
+            searchLinks.appendChild(newTag);
+        }
+        for (var i = 0; i < listTags.length; i++) {
+            var newTag = document.createElement("div");
+            newTag.className = "card-body";
+            if (listTags[i].type == "node") {
+                newTag.innerHTML = "Node " + listTags[i].data.name + " " + listTags[i].tag;
+                newTag.style.backgroundColor = nodesColor[listTags[i].data.id];
+            } else {
+                newTag.innerHTML = "Link " + listTags[i].data.type + " " + listTags[i].tag;
+                newTag.style.backgroundColor = linksColor[listTags[i].data.type];
+            }
+            searchTags.appendChild(newTag);
         }
     }
 
