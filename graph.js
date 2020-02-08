@@ -4,13 +4,14 @@ window.onload = function() {
     var nodes = [];
     var links = [];
 
-    var draw = document.getElementById("draw")
-    var searchBox = document.getElementById("searchBox")
+    var draw = document.getElementById("draw");
+    var searchBox = document.getElementById("searchBox");
     var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
     var nodeTagInput = document.getElementById("node-new-tag-input");
     var linkTagInput = document.getElementById("link-new-tag-input");
-    var allTags = {}
-    var allTagsArray = []
+    var searchResults = document.getElementById("searchResults");
+    var allTags = {};
+    var allTagsArray = [];
 
     //enable autocomplete for tags
 
@@ -25,7 +26,7 @@ window.onload = function() {
             isEscape = (evt.keyCode === 27);
         }
         if (isEscape) {
-            searchBox.value = ""
+            searchBox.value = "";
             searchBoxValueChanged();
         }
     };
@@ -128,7 +129,7 @@ window.onload = function() {
         links = graph.links;
         nodes = graph.nodes;
         update();
-    })
+    });
 
     var links = simulation.force("link").links();
     var nodes = simulation.nodes();
@@ -144,7 +145,7 @@ window.onload = function() {
     };
 
     var getSiblingTexts = function(sib) {
-        texts = []
+        texts = [];
         for (var i = 0; i < sib.length; ++i) {
             texts.push(sib[i].type);
         }
@@ -177,7 +178,7 @@ window.onload = function() {
             .style("stroke-opacity", function(o) {
                 return o.index == d.index ? 1 : 0.2;
             });
-    }
+    };
 
     var mouseOutLink = function(d, check = true) {
         if (check) {
@@ -189,12 +190,13 @@ window.onload = function() {
             }
         }
         deselectEverything();
-    }
+    };
 
     function deselectEverything() {
         state.selectedNode = null;
         state.selectedLink = null;
         state.searchedObjects.length = 0;
+
         node
             .transition(500)
             .style("opacity", 1);
@@ -209,7 +211,7 @@ window.onload = function() {
 
         document.getElementById("node-select").style.display = "none";
         document.getElementById("link-select").style.display = "none";
-
+        searchResults.style.display = "none";
     }
 
     function searchBoxValueChanged() {
@@ -276,6 +278,13 @@ window.onload = function() {
                 }
                 return 0.2;
             });
+
+        searchResults.style.display = "inline";
+        //searchResults.innerHTML = "";
+        for (var i = 0; i < state.searchedObjects.length; i++) {
+            console.log("state.searched");
+            searchResults.innerHTML += "";
+        }
     }
 
     var mouseDownLink = function(d) {
@@ -290,7 +299,7 @@ window.onload = function() {
         } else {
             deselectEverything();
         }
-    }
+    };
 
     function setupUIForLink() {
         if (!state.selectedLink) return;
@@ -300,7 +309,7 @@ window.onload = function() {
         document.getElementById("link-select-from").value = state.selectedLink.source.name;
         document.getElementById("link-select-to").value = state.selectedLink.target.name;
 
-        tagsHolder = document.getElementById("link-tags-holder")
+        tagsHolder = document.getElementById("link-tags-holder");
         tagsHolder.innerHTML = "";
         linkTagInput.value = "";
 
@@ -320,7 +329,7 @@ window.onload = function() {
         document.getElementById("node-select").style.display = "inline";
         document.getElementById("node-select-name").value = state.selectedNode.name;
         document.getElementById("node-select-desc").value = (state.selectedNode.description) ? state.selectedNode.description : "";
-        tagsHolder = document.getElementById("node-tags-holder")
+        tagsHolder = document.getElementById("node-tags-holder");
         tagsHolder.innerHTML = "";
         nodeTagInput.value = "";
 
@@ -444,8 +453,8 @@ window.onload = function() {
 
     function update() {
         //clear all objects
-        d3.selectAll("g > *").remove()
-            //update the links dict
+        d3.selectAll("g > *").remove();
+        //update the links dict
 
         link = svg.selectAll(".link")
             .data(links)
