@@ -199,7 +199,10 @@ window.onload = function() {
 
         node
             .transition(500)
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .each(function(d) {
+                this.children[0].style.fill = d.color;
+            });
 
         edgelabels
             .transition(500)
@@ -207,7 +210,8 @@ window.onload = function() {
 
         link
             .transition(500)
-            .style("stroke-opacity", 1);
+            .style("stroke-opacity", 1)
+            .style("stroke", "#999");
 
         document.getElementById("node-select").style.display = "none";
         document.getElementById("link-select").style.display = "none";
@@ -218,29 +222,31 @@ window.onload = function() {
         deselectEverything();
         //Generate the regular expression
         var searchString = new RegExp(searchBox.value, "i");
+        var nodesColor = {};
+        var linksColor = {};
 
         node
             .transition(500)
             .style("opacity", function(o) {
-                if (o.id) {
-                    if (searchString.test(o.id.toString())) {
-                        state.searchedObjects.push(o);
-                        return 1.0;
+                var found = false;
+                if (o.tags) {
+                    for (var key in o.tags) {
+                        if (searchString.test(key)) {
+                            nodesColor[o] = allTags[key];
+                            this.children[0].style.fill = allTags[key];
+                            found = true;
+                        }
                     }
                 }
                 if (o.name) {
                     if (searchString.test(o.name)) {
+                        nodesColor[o] = o.color;
+                        this.children[0].style.fill = o.color;
                         state.searchedObjects.push(o);
-                        return 1.0;
+                        found = true;
                     }
                 }
-                if (o.tags) {
-                    for (var key in o.tags) {
-                        if (searchString.test(key)) {
-                            return 1.0;
-                        }
-                    }
-                }
+                if (found) return 1.0;
                 return 0.2;
             });
 
@@ -264,25 +270,30 @@ window.onload = function() {
         link
             .transition(500)
             .style("stroke-opacity", function(o) {
-                if (o.type) {
-                    if (searchString.test(o.type)) {
-                        state.searchedObjects.push(o);
-                        return 1.0;
-                    }
-                }
+                var found = false;
                 //TODO : optimise this
                 for (var key in o.tags) {
                     if (searchString.test(key)) {
-                        return 1.0;
+                        linksColor[o] = allTags[key];
+                        this.style.stroke = allTags[key];
+                        found = true;
                     }
                 }
+                if (o.type) {
+                    if (searchString.test(o.type)) {
+                        linksColor[o] = "#999";
+                        this.style.stroke = "#999";
+                        state.searchedObjects.push(o);
+                        found = true;
+                    }
+                }
+                if (found) return 1.0;
                 return 0.2;
             });
 
         searchResults.style.display = "inline";
         //searchResults.innerHTML = "";
         for (var i = 0; i < state.searchedObjects.length; i++) {
-            console.log("state.searched");
             searchResults.innerHTML += "";
         }
     }
@@ -411,7 +422,7 @@ window.onload = function() {
 
     function mouseDownGraph() {
         state.graphMouseDown = true;
-    };
+    }
 
     function mouseUpGraph(d) {
         if (state.selectedLink != null || state.selectedNode != null) {
@@ -545,7 +556,10 @@ window.onload = function() {
         node.append("circle")
             .attr("r", 10)
             .style("fill", function(d, i) {
-                return colors(i);
+                if (!d.color) {
+                    d.color = randomColor();
+                }
+                return d.color;
             })
             .on("mouseover", function(d) {
                 mouseOverFunction(d, true);
@@ -671,7 +685,7 @@ window.onload = function() {
 
     function dragstarted(d) {
         if (!state.shiftNodeDrag) {
-            if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
             var prevNode = state.selectedNode;
