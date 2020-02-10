@@ -20,6 +20,11 @@
     margin: 0.25em;
 }
 
+.close{
+    font-size: 1.2em;
+    margin:0.2em;
+}
+
 .ui-autocomplete {
     position: absolute;
     top: 100%;

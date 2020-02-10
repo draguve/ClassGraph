@@ -414,6 +414,12 @@ window.onload = function() {
                 var newTag = document.createElement("span");
                 newTag.className = "tag badge badge-pill badge-primary";
                 newTag.innerHTML = key;
+                newTag.innerHTML += ' <button type="button" class="close" aria-label="Dismiss"> <span aria-hidden="true">&times;</span> </button>';
+                $($(newTag).children()[0]).bind("click", {
+                    key: key
+                }, function(event) {
+                    linkDeleteTag(event.data.key);
+                });
                 newTag.style.backgroundColor = allTags[key];
                 tagsHolder.appendChild(newTag);
             }
@@ -434,6 +440,12 @@ window.onload = function() {
                 var newTag = document.createElement("span");
                 newTag.className = "tag badge badge-pill badge-primary";
                 newTag.innerHTML = key;
+                newTag.innerHTML += ' <button type="button" class="close" aria-label="Dismiss"> <span aria-hidden="true">&times;</span> </button>';
+                $($(newTag).children()[0]).bind("click", {
+                    key: key
+                }, function(event) {
+                    nodeDeleteTag(event.data.key);
+                });
                 newTag.style.backgroundColor = state.selectedNode.tags[key];
                 tagsHolder.appendChild(newTag);
             }
@@ -925,6 +937,36 @@ window.onload = function() {
                 source: allTagsArray
             });
         });
+    }
+
+    function nodeDeleteTag(key){
+        var tagInput = key.toLowerCase();
+        if (state.selectedNode) {
+            if (tagInput === "") {
+                return;
+            }
+            if (!(tagInput in state.selectedNode.tags)) {
+                return;
+            }
+            delete state.selectedNode.tags[key];
+            updateTags();
+        }
+        setupUIForNode();
+    }
+
+    function linkDeleteTag(key){
+        var tagInput = key.toLowerCase();
+        if (state.selectedLink) {
+            if (tagInput === "") {
+                return;
+            }
+            if (!(tagInput in state.selectedLink.tags)) {
+                return;
+            }
+            delete state.selectedLink.tags[key];
+            updateTags();
+        }
+        setupUIForLink();
     }
 
     //Copy from here later http://bl.ocks.org/GerHobbelt/3071239
