@@ -350,12 +350,33 @@ window.onload = function() {
             newTag.className = "card-body";
             newTag.innerHTML = key;
             newTag.appendChild(badge);
+
+            newTag.innerHTML += '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#tag-dropdown-'+ key +'" aria-expanded="false">Links</button>'; 
+            var tagDropdown = document.createElement("div");
+            tagDropdown.className = "collapse";
+            tagDropdown.id = "tag-dropdown-"+key; 
             newTag.style.backgroundColor = allTags[key];
-            $(newTag).bind("click", {
+            newTag.appendChild(tagDropdown);
+
+            var selectButton = document.createElement("button");
+            selectButton.className = "btn btn-primary";
+            selectButton.innerHTML = "Select";
+            $(selectButton).bind("click", {
                 tag: key
             }, function(event) {
                 tagSearchClick(event.data.tag);
             });
+            newTag.appendChild(selectButton);
+
+            for(var i=0;i<tags[key].items.length;i++){
+                if(tags[key].items[i]["type"]=="node"){
+                    tagDropdown.innerHTML += '<div class="card-body">'+ tags[key].items[i].data.name +'</div>'
+                }else{
+                    tagDropdown.innerHTML += '<div class="card-body">'+ tags[key].items[i].data.type +'</div>'
+                }
+            }
+
+            
             searchTags.appendChild(newTag);
         }
     }
@@ -705,7 +726,7 @@ window.onload = function() {
             if ("tags" in newNode) {
                 for (var key in newNode.tags) {
                     //TODO: fix bug here where initially same tags on different objects can have different color
-                    allTags[key] = d.tags[key];
+                    allTags[key] = newNode.tags[key];
                 }
             }
         });
