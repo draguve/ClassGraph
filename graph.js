@@ -369,11 +369,25 @@ window.onload = function() {
             newTag.appendChild(selectButton);
 
             for(var i=0;i<tags[key].items.length;i++){
+                var item = document.createElement("div");
+                item.className = "card-body";
+
                 if(tags[key].items[i]["type"]=="node"){
-                    tagDropdown.innerHTML += '<div class="card-body">'+ tags[key].items[i].data.name +'</div>'
+                    item.innerHTML = "Node : " + tags[key].items[i].data.name;
+                    $(item).bind("click", {
+                        id: tags[key].items[i].data.id
+                    }, function(event) {
+                        nodeSearchClick(event.data.id);
+                    });
                 }else{
-                    tagDropdown.innerHTML += '<div class="card-body">'+ tags[key].items[i].data.type +'</div>'
+                    item.innerHTML = "Link : " +  tags[key].items[i].data.type;
+                    $(item).bind("click", {
+                        index: tags[key].items[i].data.index
+                    }, function(event) {
+                        linkSearchClick(event.data.index);
+                    });
                 }
+                tagDropdown.appendChild(item);
             }
 
             
