@@ -99,6 +99,7 @@ window.onload = function() {
             svgKeyUp();
         });
 
+    document.getElementById("sidebar").style.height = height+"px";
     document.getElementById("node-select-save").onclick = saveDataNode;
     document.getElementById("link-select-save").onclick = saveDataLink;
 
