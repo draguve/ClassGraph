@@ -6,6 +6,8 @@ var state = {
         shiftNodeDrag: false,
         dragNode: null
     };
+
+var toLoad = "graph.json";
 window.onload = function() {
     data = this;
     var colors = d3.scaleOrdinal(d3.schemeCategory10);
@@ -140,7 +142,7 @@ window.onload = function() {
 
     var linkedByIndex = {};
 
-    d3.json("graph.json", function(error, graph) {
+    d3.json(toLoad, function(error, graph) {
         if (error) throw error;
         links = graph.links;
         nodes = graph.nodes;

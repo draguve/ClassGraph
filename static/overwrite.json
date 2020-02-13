@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "name": "Draguve",
+      "label": "Person",
+      "id": 1
+    },
+    {
+      "name": "Draguve",
+      "label": "Person",
+      "id": 2
+    },
+    {
+      "name": "Draguve",
+      "label": "Database",
+      "id": 3
+    },
+    {
+      "name": "Draguve",
+      "label": "Database",
+      "id": 4,
+      "description": "A Pain in my ass"
+    }
+  ],
+  "links": [
+    {
+      "source": 1,
+      "target": 2,
+      "type": "KNOWS",
+      "description": "oi opdwekfjbdhvdb jndfh ndhjfdhdf "
+    },{
+      "source": 1,
+      "target": 2,
+      "type": "LIKES",
+      "description": "oi opdwekfjbdhvdb jndfh ndhjfdhdf "
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "type": "FOUNDED",
+      "description": "oi opdwekfjbdhvdb jndfh ndhjfdhdf "
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "type": "WORKS_ON",
+      "description": "oi opdwekfjbdhvdb jndfh ndhjfdhdf "
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "type": "IS_A"
+    }
+  ]
+}

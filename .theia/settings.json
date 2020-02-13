@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "/home/gitpod/.pyenv/shims/python3",
+    "sqltools.connections": [
+        {
+            "dialect": "SQLite",
+            "name": "Data",
+            "database": "data.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
