@@ -1,4 +1,13 @@
+var state = {
+        selectedNode: null,
+        selectedLink: null,
+        lastKeyDown: -1,
+        graphMouseDown: false,
+        shiftNodeDrag: false,
+        dragNode: null
+    };
 window.onload = function() {
+    data = this;
     var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
     var nodes = [];
@@ -9,6 +18,7 @@ window.onload = function() {
     var drawRect = draw.getBoundingClientRect(); // get the bounding rectangle
     var nodeTagInput = document.getElementById("node-new-tag-input");
     var linkTagInput = document.getElementById("link-new-tag-input");
+    var argsInput = document.getElementById("link-arguments-add");
     var searchResults = document.getElementById("searchResults");
     var allTags = {};
     var allTagsArray = [];
@@ -35,6 +45,16 @@ window.onload = function() {
         }
     };
 
+    argsInput.addEventListener("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            addNewArgumentToLink();
+        }
+    });
+
     nodeTagInput.addEventListener("keyup", function(event) {
         // Number 13 is the "Enter" key on the keyboard
         if (event.keyCode === 13) {
@@ -53,15 +73,7 @@ window.onload = function() {
     });
 
     document.getElementById("node-btn-add-tag").onclick = addNewTagToNode;
-
-    var state = {
-        selectedNode: null,
-        selectedLink: null,
-        lastKeyDown: -1,
-        graphMouseDown: false,
-        shiftNodeDrag: false,
-        dragNode: null
-    };
+    document.getElementById('link-btn-add-tag').onclick = addNewTagToLink;
 
     var consts = {
         DELETE_KEY: 46,
@@ -460,6 +472,21 @@ window.onload = function() {
                 tagsHolder.appendChild(newTag);
             }
         }
+
+        argsHolder = document.getElementById("argsHolder");
+        argsHolder.innerHTML = "";
+        argsInput.value = "";
+        
+        if("args" in state.selectedLink){
+            for(var i=0;i<state.selectedLink.args.length;i++){
+                
+                var newArg = document.createElement("li");
+                newArg.className = "list-group-item";
+                newArg.innerHTML = state.selectedLink.args[i];
+                argsHolder.appendChild(newArg);
+
+            }
+        }
     }
 
     function setupUIForNode() {
@@ -486,6 +513,7 @@ window.onload = function() {
                 tagsHolder.appendChild(newTag);
             }
         }
+
     }
 
     function saveDataNode() {
@@ -927,6 +955,24 @@ window.onload = function() {
             }
         }
         setupUIForNode();
+    }
+
+    function addNewArgumentToLink(){
+        var input = argsInput.value.toLowerCase();
+        if (state.selectedLink) {
+            if (!("args" in state.selectedLink)) {
+                state.selectedLink["args"] = [];
+            }
+            if (input === "") {
+                return;
+            }
+            if (input in state.selectedLink.args) {
+                return;
+            } else {
+                state.selectedLink.args.push(input);
+            }
+        }
+        setupUIForLink();
     }
 
     function addNewTagToLink() {
