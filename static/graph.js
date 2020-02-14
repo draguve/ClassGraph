@@ -370,7 +370,7 @@ window.onload = function() {
             newTag.innerHTML = key;
             newTag.appendChild(badge);
 
-            newTag.innerHTML += '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#tag-dropdown-'+ key +'" aria-expanded="false">Links</button>'; 
+            newTag.innerHTML += '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#tag-dropdown-'+ key +'" aria-expanded="false">Show</button>'; 
             var tagDropdown = document.createElement("div");
             tagDropdown.className = "collapse";
             tagDropdown.id = "tag-dropdown-"+key; 

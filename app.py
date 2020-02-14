@@ -41,8 +41,9 @@ def close_connection(exception):
 
 @app.route('/')
 def index():
-    get_db()
-    return "Test"
+    all_graphs = query_db("select name from graph")
+    print(all_graphs)
+    return render_template("explorer.html",all_graphs=all_graphs)
 
 @app.route('/graph/<data>',methods=['GET', 'POST'])
 def graph(data):

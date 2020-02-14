@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>About Flask</title>
+  </head>
+  <body>
+    <h1>Available Graphs</h1>
+    <ul>
+    {% for graph in all_graphs %} 
+  
+        <li><a href='{{ url_for("graph",data=graph[0]) }}'> {{  graph[0] }}</a></li> 
+
+    {%endfor%}
+    </ul>
+  </body>
+</html>
