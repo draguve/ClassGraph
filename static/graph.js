@@ -603,9 +603,15 @@ window.onload = function() {
             //Disable the line here too if the user doesnt connect to the nodes
         } else if (state.graphMouseDown && d3.event.ctrlKey) {
             // clicked not dragged from svg
+            var newid;
+            if(nodes.length >0){
+                newid = nodes[nodes.length - 1].id + 1;
+            }else{
+                newid = 0;
+            }
             var xycoords = d3.mouse(svg.node()),
                 d = {
-                    id: nodes[nodes.length - 1].id + 1,
+                    id: newid,
                     name: "New Node",
                     x: xycoords[0],
                     y: xycoords[1]

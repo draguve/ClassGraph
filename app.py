@@ -2,7 +2,7 @@ import sqlite3, os
 from flask import Flask, flash, redirect, render_template, request, session, abort, g, url_for, jsonify
 from functools import wraps
 import secrets
-from pprint import pprint
+import json
 
 app = Flask(__name__, static_url_path="/", static_folder="static")
 
@@ -42,8 +42,22 @@ def close_connection(exception):
 @app.route('/')
 def index():
     all_graphs = query_db("select name from graph")
-    print(all_graphs)
     return render_template("explorer.html",all_graphs=all_graphs)
+
+@app.route('/addnew',methods=['POST'])
+def add_new():
+    graph_name = request.form["fname"]
+    if(graph_name.strip() == ""):
+        return redirect(url_for('index'))
+    check =  query_db("select * from graph where name = ?", (graph_name,))
+    if(len(check) > 0 ):
+        return redirect(url_for("index"))
+    empty = {}
+    empty["nodes"] = []
+    empty["links"] = []
+    execute_db("insert into graph values(?,?)",(graph_name,json.dumps(empty).replace("'",'"')))
+    return redirect(url_for("graph",data=graph_name))
+
 
 @app.route('/graph/<data>',methods=['GET', 'POST'])
 def graph(data):
