@@ -2,6 +2,7 @@ import sqlite3, os
 from flask import Flask, flash, redirect, render_template, request, session, abort, g, url_for, jsonify
 from functools import wraps
 import secrets
+from pprint import pprint
 
 app = Flask(__name__, static_url_path="/", static_folder="static")
 
@@ -43,19 +44,24 @@ def index():
     get_db()
     return "Test"
 
-@app.route('/graph/<data>')
+@app.route('/graph/<data>',methods=['GET', 'POST'])
 def graph(data):
-    data = query_db("select name,data from graph where name = ?", (data,))
-    if not(data):
-        return "graph doesnt exist"
-    return render_template("graph.html",graph_name=data[0][0])
+    if request.method == "GET":
+        data = query_db("select name,data from graph where name = ?", (data,))
+        if not(data):
+            return "graph doesnt exist"
+        return render_template("graph.html",graph_name=data[0][0])
+    else:
+        execute_db("update graph set data=? where name= ? ",(str(request.json).replace("'",'"') ,data))
+        return ""
+    
 
 @app.route('/graph/<name>/data')
 def graph_data(name):
     data = query_db("select name,data from graph where name = ?", (name,))
     if not(data):
         return "graph doesnt exist"
-    return str(data[0][1])
+    return str(data[0][1]).replace("'",'"')
 
 def get_random_string():
     return secrets.token_urlsafe(32)

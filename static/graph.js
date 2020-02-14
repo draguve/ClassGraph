@@ -7,13 +7,17 @@ var state = {
         dragNode: null
     };
 
+    var nodes = [];
+    var links = [];
+    var simulation = null;
+    var createSaveObject=null;
+
 var toLoad = "graph.json";
 window.onload = function() {
     data = this;
     var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var nodes = [];
-    var links = [];
+
 
     var draw = document.getElementById("draw");
     var searchBox = document.getElementById("searchBox");
@@ -133,7 +137,7 @@ window.onload = function() {
         .attr('fill', '#999')
         .style('stroke', 'none');
 
-    var simulation = d3.forceSimulation()
+    simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function(d) {
             return d.id;
         }).distance(100).strength(1))
@@ -149,8 +153,8 @@ window.onload = function() {
         update();
     });
 
-    var links = simulation.force("link").links();
-    var nodes = simulation.nodes();
+    links = simulation.force("link").links();
+    nodes = simulation.nodes();
 
     var getSiblingLinks = function(source, target) {
         var links = simulation.force("link").links();
@@ -777,6 +781,8 @@ window.onload = function() {
         });
         allTagsArray = Object.keys(allTags);
         updateTags();
+        var sendToServer = createSaveObject();
+        sendData(sendToServer);
     }
 
     function getNode(id) {
@@ -1051,6 +1057,54 @@ window.onload = function() {
             updateTags();
         }
         setupUIForLink();
+    }
+
+    createSaveObject = function(){
+        var saveEdges = [],saveNodes=[];
+        
+        links.forEach(function(val, i){
+            var toPush = {
+                source: val.source.id,
+                target: val.target.id ,
+                type: val.type
+            }
+            if(val.description){
+                toPush.description = val.description;
+            }
+            if(val.tags){
+                toPush.tags = val.tags;
+            }
+            if(val.args){
+                toPush.args = val.args;
+            }
+            saveEdges.push(toPush);
+        });
+
+        nodes.forEach(function(val, i){
+            var toPush = {
+                name: val.name,
+                id: val.id,
+                color: val.color
+            }
+            if(val.description){
+                toPush.description = val.description;
+            }
+            if(val.tags){
+                toPush.tags = val.tags;
+            }
+            saveNodes.push(toPush);
+        });
+        return {
+            "nodes":saveNodes,
+            "links":saveEdges
+        }
+    }
+
+    function sendData(data){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", window.location.href, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
     }
 
     //Copy from here later http://bl.ocks.org/GerHobbelt/3071239
