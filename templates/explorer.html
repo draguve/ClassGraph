@@ -9,7 +9,11 @@
     <ul>
     {% for graph in all_graphs %} 
   
-        <li><a href='{{ url_for("graph",data=graph[0]) }}'> {{  graph[0] }}</a></li> 
+        <form action="{{ url_for('delete',id=graph[0]) }}" method="post">
+            <li><a href='{{ url_for("graph",data=graph[0]) }}'> {{  graph[0] }}</a> <input type="submit" name="Delete" value="Delete" /> </li> 
+            
+        </form>
+      
 
     {%endfor%}
     </ul>

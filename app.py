@@ -59,6 +59,17 @@ def add_new():
     return redirect(url_for("graph",data=graph_name))
 
 
+@app.route('/delete/<id>',methods=['POST'])
+def delete(id):
+    check =  query_db("select * from graph where name = ?", (id,))
+    if(len(check) > 0 ):
+        return redirect(url_for("index"))
+    fo = open("backup_"+id+os.urandom(5)+".txt","wb")
+    fo.write(check[0][1])
+    execute_db("DELETE FROM graph where name = ?", (id,))
+    return redirect(url_for("index"))
+
+
 @app.route('/graph/<data>',methods=['GET', 'POST'])
 def graph(data):
     if request.method == "GET":
