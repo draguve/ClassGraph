@@ -1098,6 +1098,12 @@ window.onload = function() {
             if(val.tags){
                 toPush.tags = val.tags;
             }
+            if(val.x){
+                toPush.x = val.x;
+            }
+            if(val.y){
+                toPush.y = val.y;
+            }
             saveNodes.push(toPush);
         });
         return {
