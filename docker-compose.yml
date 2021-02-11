@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  postgres:
+    image: "postgres:latest"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: draguve
+      POSTGRES_PASSWORD: pioneer123
+      POSTGRES_DB: classgraph

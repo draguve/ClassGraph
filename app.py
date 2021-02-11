@@ -3,6 +3,8 @@ from flask import Flask, flash, redirect, render_template, request, session, abo
 from functools import wraps
 import secrets
 import json
+import psycopg2
+
 
 app = Flask(__name__, static_url_path="/", static_folder="static")
 
@@ -13,25 +15,33 @@ app.secret_key = os.urandom(12)
 
 Database = 'data.db'
 
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(Database)
+        #db = g._database = sqlite3.connect(Database)
+        db = g._database = psycopg2.connect("dbname='classgraph' user='draguve' host='localhost' password='pioneer123'")
     return db
 
 
 def query_db(query, args=(), one=False):  # used to retrive values from the table
-    cur = get_db().execute(query, args)
+    conn = get_db()
+    cur = conn.cursor()
+    query = query.format(*args)
+    cur.execute(query)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
+
 def execute_db(query, args=()):  # executes a sql command like alter table and insert
     conn = get_db()
     cur = conn.cursor()
-    cur.execute(query, args)
+    query = query.format(*args)
+    cur.execute(query)
     conn.commit()
     cur.close()
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -39,58 +49,60 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+
 @app.route('/')
 def index():
-    all_graphs = query_db("select name from graph")
-    return render_template("explorer.html",all_graphs=all_graphs)
+    all_graphs = query_db("select graph_name from graph")
+    return render_template("explorer.html", all_graphs=all_graphs)
 
-@app.route('/addnew',methods=['POST'])
+
+@app.route('/addnew', methods=['POST'])
 def add_new():
     graph_name = request.form["fname"]
-    if(graph_name.strip() == ""):
+    if graph_name.strip() == "":
         return redirect(url_for('index'))
-    check =  query_db("select * from graph where name = ?", (graph_name,))
-    if(len(check) > 0 ):
+    check = query_db("select * from graph where graph_name = '{0}'", (graph_name,))
+    if len(check) > 0:
         return redirect(url_for("index"))
-    empty = {}
-    empty["nodes"] = []
-    empty["links"] = []
-    execute_db("insert into graph values(?,?)",(graph_name,json.dumps(empty).replace("'",'"')))
-    return redirect(url_for("graph",data=graph_name))
+    empty = {"nodes": [], "links": []}
+    execute_db("insert into graph values('{0}','{1}')", (graph_name, json.dumps(empty).replace("'", '"')))
+    return redirect(url_for("graph", data=graph_name))
 
 
-@app.route('/delete/<id>',methods=['POST'])
+@app.route('/delete/<id>', methods=['POST'])
 def delete(id):
-    check =  query_db("select * from graph where name = ?", (id,))
-    if(len(check) > 0 ):
+    check = query_db("select * from graph where name = '{0}'", (id,))
+    if len(check) > 0:
         return redirect(url_for("index"))
-    fo = open("backup_"+id+os.urandom(5)+".txt","wb")
+    fo = open("backup_" + id + os.urandom(5) + ".txt", "wb")
     fo.write(check[0][1])
-    execute_db("DELETE FROM graph where name = ?", (id,))
+    execute_db("DELETE FROM graph where graph_name = '{0}'", (id,))
     return redirect(url_for("index"))
 
 
-@app.route('/graph/<data>',methods=['GET', 'POST'])
+@app.route('/graph/<data>', methods=['GET', 'POST'])
 def graph(data):
     if request.method == "GET":
-        data = query_db("select name,data from graph where name = ?", (data,))
-        if not(data):
+        data = query_db("select graph_name,graph_data from graph where graph_name = '{0}'", (data,))
+        if not data:
             return "graph doesnt exist"
-        return render_template("graph.html",graph_name=data[0][0])
+        return render_template("graph.html", graph_name=data[0][0])
     else:
-        execute_db("update graph set data=? where name= ? ",(str(request.json).replace("'",'"') ,data))
+        execute_db("update graph set graph_data='{0}' where graph_name= '{1}' ", (str(request.json).replace("'", '"'), data))
         return ""
-    
+
 
 @app.route('/graph/<name>/data')
 def graph_data(name):
-    data = query_db("select name,data from graph where name = ?", (name,))
-    if not(data):
+    data = query_db("select graph_name,graph_data from graph where graph_name = '{0}'", (name,))
+    if not data:
         return "graph doesnt exist"
-    return str(data[0][1]).replace("'",'"')
+    return str(data[0][1]).replace("'", '"')
+
 
 def get_random_string():
     return secrets.token_urlsafe(32)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=8080)
