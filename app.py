@@ -1,10 +1,9 @@
-import sqlite3, os
-from flask import Flask, flash, redirect, render_template, request, session, abort, g, url_for, jsonify
-from functools import wraps
-import secrets
 import json
-import psycopg2
+import os
+import secrets
 
+import psycopg2
+from flask import Flask, redirect, render_template, request, g, url_for
 
 app = Flask(__name__, static_url_path="/", static_folder="static")
 
@@ -13,14 +12,18 @@ app.config['UPLOAD_FOLDER'] = UPLOADS_PATH
 
 app.secret_key = os.urandom(12)
 
-Database = 'data.db'
+DB_NAME = os.environ.get("DB_NAME", "classgraph")
+DB_USER = os.environ.get("DB_USER", "draguve")
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_PASS = os.environ.get("DB_PASS", "pioneer123")
 
 
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        #db = g._database = sqlite3.connect(Database)
-        db = g._database = psycopg2.connect("dbname='classgraph' user='draguve' host='localhost' password='pioneer123'")
+        db = g._database = psycopg2.connect(
+            "dbname='{0}' user='{1}' host='{2}' password='{3}'".format(DB_NAME, DB_USER,
+                                                                       DB_HOST, DB_PASS))
     return db
 
 
@@ -88,7 +91,8 @@ def graph(data):
             return "graph doesnt exist"
         return render_template("graph.html", graph_name=data[0][0])
     else:
-        execute_db("update graph set graph_data='{0}' where graph_name= '{1}' ", (str(request.json).replace("'", '"'), data))
+        execute_db("update graph set graph_data='{0}' where graph_name= '{1}' ",
+                   (str(request.json).replace("'", '"'), data))
         return ""
 
 
