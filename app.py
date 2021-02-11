@@ -16,6 +16,7 @@ DB_NAME = os.environ.get("DB_NAME", "classgraph")
 DB_USER = os.environ.get("DB_USER", "draguve")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PASS = os.environ.get("DB_PASS", "pioneer123")
+PORT = int(os.environ.get("PORT", "5000"))
 
 
 def get_db():
@@ -109,4 +110,4 @@ def get_random_string():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=PORT)
